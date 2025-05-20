@@ -175,3 +175,5 @@ cython_debug/
 #CSV files
 *.csv
 test_notebooks/
+notebooks/my_dir/
+
