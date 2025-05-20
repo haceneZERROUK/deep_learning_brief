@@ -26,31 +26,11 @@ df.replace('', np.nan, inplace=True)
 
 # 5. Drop duplicate rows
 df.drop_duplicates(inplace=True)
+df.totalcharges = pd.to_numeric(df.totalcharges)
 
 # 6. Drop rows with missing values
 df.dropna(inplace=True)
 
-features_of_interest = [
-'gender',
-'seniorcitizen',
-'partner',
-'dependents',
-'tenure', 
-'phoneservice', 
-'multiplelines', 
-'internetservice',
-'onlinesecurity',
-'onlinebackup', 
-'deviceprotection', 
-'techsupport',
-'streamingtv', 
-'streamingmovies', 
-'contract', 
-'paperlessbilling',
-'paymentmethod', 
-'monthlycharges', 
-'totalcharges'
-]
 
 
 numerical_column = [
@@ -133,28 +113,8 @@ y_train_cat = tf.keras.utils.to_categorical(y_train, num_classes)
 y_val_cat = tf.keras.utils.to_categorical(y_val, num_classes)
 y_test_cat  = tf.keras.utils.to_categorical(y_test,  num_classes)
 
-def build_model():
-    # Réseau avec 2 couches cachées de 64 neurones chacune
-    # et une couche de sortie avec activation softmax pour classification
-    model = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(X_train.shape[1],)),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(num_classes, activation='softmax')
-    ])
 
-    # Définition de la fonction de perte, de l'optimiseur et des métriques
-    model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-        loss='categorical_crossentropy',
-        metrics=['accuracy']
-    )
-
-    model.summary()
-
-    return model
-
-model = build_model()
+model = build_model(X_train,num_classes)
 
 history = model.fit(
     X_train, y_train_cat,
@@ -164,8 +124,9 @@ history = model.fit(
     verbose=1
 )
 
-test_loss, test_acc = model.evaluate(X_test, y_test_cat, verbose=0)
+test_loss, test_acc,test_auc = model.evaluate(X_test, y_test_cat, verbose=0)
 print(f"\nAccuracy sur le test set : {test_acc:.4f}")
+print(f"\nauc sur le test set : {test_auc:.4f}")
 
 y_pred_probs = model.predict(X_test)
 y_pred = np.argmax(y_pred_probs, axis=1)
