@@ -8,7 +8,7 @@ import tensorflow as tf
 from utils import build_model
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+from sklearn.utils import class_weight
 
 
 # Bonne mise en forme des noms de colonnes
@@ -116,12 +116,31 @@ y_test_cat  = tf.keras.utils.to_categorical(y_test,  num_classes)
 
 model = build_model(X_train,num_classes)
 
+
+y_train_labels = np.argmax(y_train_cat, axis=1)
+
+class_weights = class_weight.compute_class_weight(
+    class_weight='balanced',
+    classes=np.unique(y_train_labels),
+    y=y_train_labels
+)
+class_weight_dict = dict(enumerate(class_weights))
+
+
+early_stop = tf.keras.callbacks.EarlyStopping(
+    monitor='val_recall',    # surveille la perte de validation
+    patience=3,            # tolère 3 époques sans amélioration
+    restore_best_weights=True
+)
+
 history = model.fit(
     X_train, y_train_cat,
     validation_data=(X_val, y_val_cat),
     epochs=20,
-    batch_size=16,
-    verbose=1
+    batch_size=8,
+    class_weight=class_weight_dict,
+    verbose=1,
+    callbacks = [early_stop]
 )
 
 test_loss, test_acc,test_auc = model.evaluate(X_test, y_test_cat, verbose=0)
