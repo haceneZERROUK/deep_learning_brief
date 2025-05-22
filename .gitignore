@@ -176,4 +176,7 @@ cython_debug/
 *.csv
 test_notebooks/
 notebooks/my_dir/
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/Eliandy

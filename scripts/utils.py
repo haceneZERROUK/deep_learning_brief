@@ -4,9 +4,9 @@ def build_model(X_train, num_classes):
     # Définir le modèle
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(X_train.shape[1],)),
-        tf.keras.layers.Dense(8, activation='relu'),       
-        tf.keras.layers.Dense(64, activation='relu'),  # Je remplace 'sigmoid' par 'relu' ici pour une meilleure convergence
-        tf.keras.layers.Dense(1, activation='sigmoid')  # Pour la classification binaire, une sortie avec activation sigmoid
+        tf.keras.layers.Dense(8, activation='relu'),
+        tf.keras.layers.Dense(64, activation='sigmoid'),
+        tf.keras.layers.Dense(num_classes, activation='softmax')
     ])
 
     model.compile(
