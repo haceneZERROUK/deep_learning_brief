@@ -145,6 +145,8 @@ history = model.fit(
     callbacks = [early_stop]
 )
 
+model.save("prev_churn.keras")
+
 test_loss, test_acc,test_auc = model.evaluate(X_test, y_test_cat, verbose=0)
 print(f"\nAccuracy sur le test set : {test_acc:.4f}")
 print(f"\nauc sur le test set : {test_auc:.4f}")
