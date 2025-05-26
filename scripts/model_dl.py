@@ -9,7 +9,7 @@ from utils import build_model
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.utils import class_weight
-
+import shap
 
 # Bonne mise en forme des noms de colonnes
 df = pd.read_csv('dataset.csv')
@@ -64,7 +64,6 @@ categorical_column = [
 'contract', 
 'paymentmethod', 
 
-
 ]
 
 target_name = "churn"
@@ -72,7 +71,7 @@ target_name = "churn"
 # Séparation train/val/test (80/20 puis 20% de train pour val)
 X = df.drop(columns=target_name)
 y=df[target_name]
-binirazer = LabelBinarizer()
+binirazer = LabelEncoder()
 y = binirazer.fit_transform(y)
 X.shape, y.shape
 
@@ -105,7 +104,8 @@ X_test= preprocessor.transform(X_test)
 
 
 # Vérification des classes
-num_classes = len(np.unique(y))
+num_classes = len(np.unique(y)) 
+print(num_classes,"******************************************************")
 
 
 # Encodage des labels en one-hot
@@ -124,6 +124,8 @@ class_weights = class_weight.compute_class_weight(
     classes=np.unique(y_train_labels),
     y=y_train_labels
 )
+
+
 class_weight_dict = dict(enumerate(class_weights))
 
 
@@ -160,3 +162,14 @@ plt.title("Matrice de Confusion")
 plt.xlabel("Classe Prédite")
 plt.ylabel("Classe Réelle")
 plt.show()
+
+# Crée un explainer SHAP pour un modèle Keras
+explainer = shap.Explainer(model, X_train)
+
+# Calcule les SHAP values sur le jeu de test
+shap_values = explainer(X_test)
+
+# Affiche la summary plot des importances
+shap.summary_plot(shap_values, X_test, feature_names=preprocessor.get_feature_names_out(), show=False)
+plt.savefig("shap_summary.png", bbox_inches='tight')
+print("✅ SHAP summary plot sauvegardé sous 'shap_summary.png'")
